@@ -4,12 +4,19 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      cocoapods: default
     scripts:
-      - name: Install dependencies
+      - name: Install CocoaPods
         script: |
-          flutter pub get
-      - name: Build IPA
+          cd ios
+          pod install --repo-update
+      - name: Flutter build ipa
         script: |
-          flutter build ios --release --no-codesign
+          flutter build ipa --release \
+            --export-options-plist=/tmp/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        api_key: codemagic_api_key # تأكد من تطابق الاسم مع اسم الـ Key في إعدادات Codemagic
+        submit_to_testflight: true
