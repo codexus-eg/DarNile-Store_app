@@ -5,6 +5,10 @@ workflows:
       flutter: stable
       xcode: latest
     scripts:
+      - name: Initialize iOS directory
+        script: |
+          # التأكد من وجود ملفات الـ iOS وإعدادها
+          flutter build ios --config-only
       - name: Install pods
         script: |
           cd ios
