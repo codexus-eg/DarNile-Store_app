@@ -12,10 +12,9 @@ workflows:
         script: |
           cd ios
           pod install --repo-update
-      - name: Flutter build ipa
+      - name: Flutter build
         script: |
-          # نستخدم أمر build ipa مع تفعيل التوقيع التلقائي
-          flutter build ipa --release \
-            --export-options-plist=/tmp/export_options.plist
+          # نستخدم أمر البناء العام للـ iOS بدون إجبار التوقيع (Code Signing)
+          flutter build ios --release --no-codesign
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/iphoneos/Runner.app
