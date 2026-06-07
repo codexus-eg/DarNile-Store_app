@@ -5,16 +5,16 @@ workflows:
       flutter: stable
       xcode: latest
     scripts:
-      - name: Initialize iOS directory
+      - name: Initialize iOS
         script: |
           flutter build ios --config-only
       - name: Install pods
         script: |
           cd ios
           pod install --repo-update
-      - name: Build IPA with Automatic Signing
+      - name: Build Flutter for iOS
         script: |
-          flutter build ipa --release \
-            --export-options-plist=/tmp/export_options.plist
+          # نستخدم --no-codesign عشان نمنع Xcode من البحث عن شهادات أثناء البناء
+          flutter build ios --release --no-codesign
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/iphoneos/Runner.app
