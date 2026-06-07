@@ -12,9 +12,14 @@ workflows:
         script: |
           cd ios
           pod install --repo-update
-      - name: Flutter build
+      - name: Build IPA with Automatic Signing
         script: |
-          # نستخدم أمر البناء العام للـ iOS بدون إجبار التوقيع (Code Signing)
-          flutter build ios --release --no-codesign
+          # نستخدم --export-options-plist لتوجيه العملية لاستخدام توقيع Codemagic التلقائي
+          flutter build ipa --release \
+            --export-options-plist=/tmp/export_options.plist
     artifacts:
-      - build/ios/iphoneos/Runner.app
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        api_key: noourway
+        submit_to_testflight: true
