@@ -7,7 +7,6 @@ workflows:
     scripts:
       - name: Initialize iOS directory
         script: |
-          # التأكد من وجود ملفات الـ iOS وإعدادها
           flutter build ios --config-only
       - name: Install pods
         script: |
@@ -15,6 +14,7 @@ workflows:
           pod install --repo-update
       - name: Flutter build ipa
         script: |
+          # نستخدم أمر build ipa مع تفعيل التوقيع التلقائي
           flutter build ipa --release \
             --export-options-plist=/tmp/export_options.plist
     artifacts:
