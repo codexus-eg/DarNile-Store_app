@@ -4,9 +4,8 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: default
     scripts:
-      - name: Install CocoaPods
+      - name: Install pods
         script: |
           cd ios
           pod install --repo-update
@@ -18,5 +17,5 @@ workflows:
       - build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
-        api_key: Codemagic Admin Key
+        api_key: noourway # هذا هو اسم الـ Key الخاص بك كما ظهر في الصورة الأخيرة
         submit_to_testflight: true
