@@ -1,0 +1,59 @@
+name: darnile_store
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+version: 1.1.0+2
+
+environment:
+  sdk: ^3.12.0
+
+# Dependencies specify other packages that your package needs in order to work.
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.10.0
+  shared_preferences: ^2.3.0  
+  url_launcher: ^6.3.0 # Added here for handling external map and app links
+
+  # 🚀 تم إضافة مكتبة فايربيس الأساسية هنا
+  firebase_core: ^3.0.0
+
+  # The following adds the Cupertino Icons font to your application.
+  cupertino_icons: ^1.0.8
+  connectivity_plus: ^7.1.1
+  firebase_messaging: ^15.2.10
+  in_app_review: ^2.0.12
+  in_app_update: ^4.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints
+  flutter_lints: ^6.0.0
+
+  # 🏆 Added: Automation tool for processing image dimensions for mobile app icons
+  flutter_launcher_icons: ^0.13.1
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is included
+  uses-material-design: true
+
+  # Registered assets for Dar Nile Store branding shell layouts
+  assets:
+    - assets/splash_logo.png
+    - assets/new_logo.png
+
+# ⚙️ Launcher icon generation properties for native build targets
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/app_logo.png"
+  remove_alpha_ios: true
