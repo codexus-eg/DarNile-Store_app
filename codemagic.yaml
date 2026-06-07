@@ -18,5 +18,5 @@ workflows:
       - build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
-        api_key: codemagic_api_key # تأكد من تطابق الاسم مع اسم الـ Key في إعدادات Codemagic
+        api_key: Codemagic Admin Key
         submit_to_testflight: true
