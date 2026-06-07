@@ -12,9 +12,13 @@ workflows:
         script: |
           cd ios
           pod install --repo-update
+      - name: Disable code signing in Xcode
+        script: |
+          # هذا الأمر يقوم بتعديل ملف الإعدادات وإلغاء التوقيع التلقائي
+          sed -i '' 's/CODE_SIGN_IDENTITY = "Apple Development"/CODE_SIGN_IDENTITY = ""/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic/CODE_SIGN_STYLE = Manual/g' ios/Runner.xcodeproj/project.pbxproj
       - name: Build Flutter for iOS
         script: |
-          # نستخدم --no-codesign عشان نمنع Xcode من البحث عن شهادات أثناء البناء
           flutter build ios --release --no-codesign
     artifacts:
       - build/ios/iphoneos/Runner.app
