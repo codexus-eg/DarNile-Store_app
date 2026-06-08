@@ -26,16 +26,20 @@ workflows:
         script: |
           flutter build ios --config-only
           cd ios
-          # التأكد من وجود Podfile
           if [ ! -f "Podfile" ]; then
             pod init
           fi
           pod install --repo-update
 
+      - name: Generate Export Options
+        script: |
+          # هنا بننشئ الملف اللي كان ناقص أوتوماتيكياً قبل ما يبدأ البناء
+          xcode-project generate-export-options --project ios/Runner.xcworkspace --scheme Runner > /tmp/export_options.plist
+
       - name: Build IPA
         script: |
-          # التعديل هنا: استخدمنا أمر كود ماجيك الداخلي اللي مش بيحتاج plist خارجية
-          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner
+          # هنا استخدمنا الملف اللي لسه منشئينه حالا
+          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner --export-options-plist /tmp/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
