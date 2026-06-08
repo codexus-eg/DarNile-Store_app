@@ -22,21 +22,19 @@ workflows:
           flutter clean
           flutter pub get
 
-      - name: Force Generate iOS project
+      - name: Setup iOS Project and Pods
         script: |
-          # محاولة إجبارية لإنشاء المجلدات
-          flutter create . --platforms=ios
+          # 1. محاولة تهيئة الإعدادات الأساسية
+          flutter build ios --config-only
 
-      - name: Debug - Verify Podfile
-        script: |
-          # خطوة كشف: هنطبع محتويات المجلد عشان نعرف هو فين بالظبط
-          echo "Files in ios directory:"
-          ls -la ios/
-
-      - name: Install Pods
-        script: |
-          # لو الملف موجود فعلاً هيكمل، لو لأ هيطلع الخطأ ونشوف الـ Logs
+          # 2. التأكد من وجود الـ Podfile، لو مش موجود نكريته
           cd ios
+          if [ ! -f "Podfile" ]; then
+            echo "Podfile missing, initializing..."
+            pod init
+          fi
+
+          # 3. تحديث وتثبيت البودز
           pod install --repo-update
 
       - name: Build IPA
