@@ -2,7 +2,7 @@ workflows:
   ios-testflight-workflow:
     name: iOS Build and Publish to TestFlight
 
-    # 1. تعريف الربط مع حساب أبل بشكل صحيح جوه قسم integrations
+    # تعريف الربط مع حساب أبل باستخدام الاسم اللي في الإعدادات
     integrations:
       app_store_connect: noourway
 
@@ -34,7 +34,6 @@ workflows:
 
     publishing:
       app_store_connect:
-        # 2. تأكيد استخدام الربط لحل مشكلة طلب البيانات اليدوية
-        auth:
-          integration: noourway
+        # هنا التعديل: الكلمة الحرفية "integration" بتخليه يسحب الـ Key من فوق
+        auth: integration
         submit_to_testflight: true
