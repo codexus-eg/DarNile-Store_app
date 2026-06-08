@@ -17,23 +17,30 @@ workflows:
           - DarNile_app_profile
 
     scripts:
-      - name: Get Dependencies
-        script: flutter pub get
-
-      - name: Generate iOS structure
+      - name: Clean and Get Dependencies
         script: |
-          # ده الأمر اللي بيكريت الـ ios folder والـ Podfile
-          flutter build ios --config-only --no-codesign
+          flutter clean
+          flutter pub get
+
+      - name: Force Generate iOS project
+        script: |
+          # محاولة إجبارية لإنشاء المجلدات
+          flutter create . --platforms=ios
+
+      - name: Debug - Verify Podfile
+        script: |
+          # خطوة كشف: هنطبع محتويات المجلد عشان نعرف هو فين بالظبط
+          echo "Files in ios directory:"
+          ls -la ios/
 
       - name: Install Pods
         script: |
-          # هنا بنروح للـ ios فولدر ونتأكد إن البودز بتنزل
+          # لو الملف موجود فعلاً هيكمل، لو لأ هيطلع الخطأ ونشوف الـ Logs
           cd ios
           pod install --repo-update
 
       - name: Build IPA
         script: |
-          # البناء النهائي
           flutter build ipa --release \
             --export-options-plist=/tmp/export_options.plist
 
