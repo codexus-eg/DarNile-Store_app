@@ -3,19 +3,17 @@ workflows:
     name: iOS Build and Publish to TestFlight
     max_build_duration: 120
     instance_type: mac_mini_m2
-    
+
     integrations:
       app_store_connect: noourway
-      
+
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
-      
-      # هنا إحنا بنقول لكود ماجيك: استخدم اللي في الخزنة بالظبط
+
+      # التعديل الجوهري: اعتمدنا فقط على البروفايل الموجود في الخزنة
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.darnilestore.codexus.app
         provisioning_profiles:
           - DarNile_app_profile
 
@@ -23,18 +21,19 @@ workflows:
       - name: Generate iOS project structure
         script: |
           flutter create . --platforms=ios
-          
+
       - name: Generate Podfile
         script: |
           flutter build ios --config-only --no-codesign
-          
+
       - name: Install Pods
         script: |
           cd ios
           pod install --repo-update
-          
+
       - name: Build ipa for distribution
         script: |
+          # البناء النهائي مع التوقيع اليدوي
           flutter build ipa --release \
             --export-options-plist=/tmp/export_options.plist
 
