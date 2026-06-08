@@ -2,14 +2,10 @@ workflows:
   ios-testflight-workflow:
     name: iOS Build and Publish to TestFlight
 
-    # تعريف الربط مع حساب أبل باستخدام الاسم اللي في الإعدادات
     integrations:
       app_store_connect: noourway
 
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.darnilestore.codexus.app
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -19,12 +15,24 @@ workflows:
         script: |
           flutter build ios --config-only
 
+      - name: Explicitly Define App and Fetch Certificates
+        script: |
+          # هنا بنعرف التطبيق بالـ Bundle ID ونجبر النظام على إنشاء الشهادات لو مش موجودة
+          app-store-connect fetch-signing-files "com.darnilestore.codexus.app" \
+            --type IOS_APP_STORE \
+            --create
+
+      - name: Apply Profiles to Xcode
+        script: |
+          # هذا الأمر يركب الشهادات اللي اتسحبت في الخطوة السابقة جوه إعدادات المشروع
+          xcode-project use-profiles
+
       - name: Install dependencies (Pods)
         script: |
           cd ios
           pod install --repo-update
 
-      - name: Build IPA with Automatic Code Signing
+      - name: Build IPA
         script: |
           flutter build ipa --release \
             --export-options-plist=/tmp/export_options.plist
@@ -34,6 +42,5 @@ workflows:
 
     publishing:
       app_store_connect:
-        # هنا التعديل: الكلمة الحرفية "integration" بتخليه يسحب الـ Key من فوق
         auth: integration
         submit_to_testflight: true
