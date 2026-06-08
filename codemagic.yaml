@@ -8,13 +8,17 @@ workflows:
       app_store_connect: noourway
 
     environment:
-      # هذا القسم سيقوم تلقائياً بسحب الشهادة والبروفايل التي قمت بتوليدها في الخزنة
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.darnilestore.codexus.app
       flutter: stable
       xcode: latest
       cocoapods: default
+      # هنا السر: استدعاء الملفات بأسمائها من الخزنة مباشرة
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.darnilestore.codexus.app
+        certificates:
+          - ios_dist_cert
+        provisioning_profiles:
+          - ios_app_profile
 
     scripts:
       - name: Generate iOS project structure
@@ -24,6 +28,10 @@ workflows:
       - name: Generate Podfile
         script: |
           flutter build ios --config-only --no-codesign
+
+      - name: Set up code signing
+        # تركيب الشهادات اللي سحبناها من الخزنة جوه المشروع
+        script: xcode-project use-profiles
 
       - name: Install Pods
         script: |
