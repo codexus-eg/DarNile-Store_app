@@ -11,10 +11,8 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      # هنا السر: استدعاء الملفات بأسمائها من الخزنة مباشرة
+      # التعديل هنا: إبقاء الأسماء المرجعية فقط بدون ذكر الـ distribution_type
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.darnilestore.codexus.app
         certificates:
           - ios_dist_cert
         provisioning_profiles:
@@ -30,7 +28,6 @@ workflows:
           flutter build ios --config-only --no-codesign
 
       - name: Set up code signing
-        # تركيب الشهادات اللي سحبناها من الخزنة جوه المشروع
         script: xcode-project use-profiles
 
       - name: Install Pods
