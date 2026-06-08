@@ -12,28 +12,28 @@ workflows:
       xcode: latest
       cocoapods: default
 
-      # التعديل الجوهري: اعتمدنا فقط على البروفايل الموجود في الخزنة
       ios_signing:
         provisioning_profiles:
           - DarNile_app_profile
 
     scripts:
-      - name: Generate iOS project structure
-        script: |
-          flutter create . --platforms=ios
+      - name: Get Dependencies
+        script: flutter pub get
 
-      - name: Generate Podfile
+      - name: Generate iOS structure
         script: |
+          # ده الأمر اللي بيكريت الـ ios folder والـ Podfile
           flutter build ios --config-only --no-codesign
 
       - name: Install Pods
         script: |
+          # هنا بنروح للـ ios فولدر ونتأكد إن البودز بتنزل
           cd ios
           pod install --repo-update
 
-      - name: Build ipa for distribution
+      - name: Build IPA
         script: |
-          # البناء النهائي مع التوقيع اليدوي
+          # البناء النهائي
           flutter build ipa --release \
             --export-options-plist=/tmp/export_options.plist
 
