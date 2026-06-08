@@ -11,29 +11,32 @@ workflows:
       cocoapods: default
 
     scripts:
-      - name: Initialize iOS project
+      - name: Generate iOS files safely
         script: |
-          flutter build ios --config-only
+          # إنشاء مجلد وملفات الـ iOS بأمان بدون فحص الشهادات
+          flutter create . --platforms=ios
+          flutter pub get
 
-      - name: Explicitly Define App and Fetch Certificates
+      - name: Fetch Certificates
         script: |
-          # هنا بنعرف التطبيق بالـ Bundle ID ونجبر النظام على إنشاء الشهادات لو مش موجودة
+          # سحب الشهادات من أبل
           app-store-connect fetch-signing-files "com.darnilestore.codexus.app" \
             --type IOS_APP_STORE \
             --create
 
-      - name: Apply Profiles to Xcode
+      - name: Apply Profiles
         script: |
-          # هذا الأمر يركب الشهادات اللي اتسحبت في الخطوة السابقة جوه إعدادات المشروع
+          # تركيب الشهادات في المشروع
           xcode-project use-profiles
 
-      - name: Install dependencies (Pods)
+      - name: Install Pods
         script: |
           cd ios
           pod install --repo-update
 
       - name: Build IPA
         script: |
+          # البناء النهائي بملف التوقيع السليم
           flutter build ipa --release \
             --export-options-plist=/tmp/export_options.plist
 
