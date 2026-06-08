@@ -2,12 +2,12 @@ name: darnile_store
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
-version: 1.1.0+2
+version: 1.1.0+3
 
 environment:
   sdk: ^3.12.0
@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   webview_flutter: ^4.10.0
-  shared_preferences: ^2.3.0  
+  shared_preferences: ^2.3.0
   url_launcher: ^6.3.0 # Added here for handling external map and app links
 
   # 🚀 تم إضافة مكتبة فايربيس الأساسية هنا
@@ -42,7 +42,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is included
   uses-material-design: true
 
