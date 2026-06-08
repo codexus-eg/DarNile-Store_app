@@ -24,23 +24,18 @@ workflows:
 
       - name: Setup iOS Project and Pods
         script: |
-          # 1. محاولة تهيئة الإعدادات الأساسية
           flutter build ios --config-only
-
-          # 2. التأكد من وجود الـ Podfile، لو مش موجود نكريته
           cd ios
+          # التأكد من وجود Podfile
           if [ ! -f "Podfile" ]; then
-            echo "Podfile missing, initializing..."
             pod init
           fi
-
-          # 3. تحديث وتثبيت البودز
           pod install --repo-update
 
       - name: Build IPA
         script: |
-          flutter build ipa --release \
-            --export-options-plist=/tmp/export_options.plist
+          # التعديل هنا: استخدمنا أمر كود ماجيك الداخلي اللي مش بيحتاج plist خارجية
+          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner
 
     artifacts:
       - build/ios/ipa/*.ipa
