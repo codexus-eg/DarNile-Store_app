@@ -1,20 +1,42 @@
 workflows:
-  ios-workflow:
-    name: iOS Build
+  ios-testflight-workflow:
+    name: iOS Build and Publish to TestFlight
+
+    # 1. إعطاء الصلاحية للورك فلو ده إنه يستخدم الـ API Key بتاعك اللي متسجل في الإعدادات
+    app_store_connect: noourway
+
     environment:
+      # 2. قسم التوقيع التلقائي: هنا Codemagic بيكلم أبل ويسحب الشهادات أوتوماتيك
+      ios_signing:
+        distribution_type: app_store # إحنا بنعمل توقيع جاهز للـ App Store / TestFlight
+        bundle_identifier: com.darnilestore.codexus.app # الباندل آي دي بتاع التطبيق
       flutter: stable
       xcode: latest
+      cocoapods: default
+
     scripts:
-      - name: Initialize iOS
+      - name: Initialize iOS project
         script: |
+          # تجهيز بيئة الـ iOS من الصفر
           flutter build ios --config-only
-      - name: Install pods
+
+      - name: Install dependencies (Pods)
         script: |
           cd ios
           pod install --repo-update
-      - name: Build Flutter for iOS
+
+      - name: Build IPA with Automatic Code Signing
         script: |
-          # هنا بنضيف متغيرات بتجبر Xcode يتجاهل التوقيع
-          flutter build ios --release --no-codesign --export-options-plist=none
+          # 3. بناء ملف الـ IPA النهائي.. هنا Xcode هيلاقي الشهادات اللي Codemagic جابها وهيوقع التطبيق رسمي
+          flutter build ipa --release \
+            --export-options-plist=/tmp/export_options.plist
+
     artifacts:
-      - build/ios/iphoneos/Runner.app
+      # 4. حفظ ملف التطبيق النهائي بعد نجاح البناء
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      # 5. الرفع التلقائي لـ TestFlight بعد ما البناء والتوقيع يخلصوا
+      app_store_connect:
+        api_key: noourway
+        submit_to_testflight: true
