@@ -30,19 +30,20 @@ workflows:
             pod install --repo-update
           fi
 
-      - name: Apply Vault Profiles
-        script: xcode-project use-profiles
-
-      - name: Build IPA
+      - name: Build Archive
         script: |
-          flutter build ipa --release
-          # خطوة إضافية: التأكد من وجود الملف ونسخه لمسار ثابت
-          mkdir -p build/ios/ipa
-          cp -r build/ios/ipa/*.ipa . || echo "IPA not found in expected folder"
+          # 1. بنبني الـ Archive بس (الخطوة اللي نجحت معاك)
+          flutter build ios --release
+
+      - name: Build and Package IPA
+        script: |
+          # 2. بنستخدم أداة كود ماجيك عشان تحول الـ Archive لـ IPA
+          # دي بتشوف البروفايل اللي في الـ Vault أوتوماتيك
+          xcode-project use-profiles
+          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner
 
     artifacts:
       - build/ios/ipa/*.ipa
-      - "*.ipa" # ضفنا دي عشان لو الملف خرج بره المجلد يلقطه
 
     publishing:
       app_store_connect:
