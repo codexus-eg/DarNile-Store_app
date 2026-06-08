@@ -34,10 +34,14 @@ workflows:
       - name: Apply Vault Profiles
         script: xcode-project use-profiles
 
-      - name: Build IPA
+      - name: Build and Package IPA
         script: |
-          # هنا بنبني الـ IPA مباشرة من غير ما نتدخل في الـ plist
-          flutter build ipa --release
+          # 1. بناء الـ Archive (إحنا عارفين إن دي شغالة)
+          flutter build ios --release
+
+          # 2. تحويل الـ Archive إلى IPA باستخدام البروفايل اللي في الخزنة
+          # الأداة دي بتعرف أوتوماتيك مكان الـ Archive وبتربطه بالبروفايل
+          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner
 
     artifacts:
       - build/ios/ipa/*.ipa
