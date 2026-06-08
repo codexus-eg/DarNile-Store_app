@@ -17,28 +17,30 @@ workflows:
           - DarNile_app_profile
 
     scripts:
-      - name: Clean Environment
+      - name: Get Dependencies
         script: |
           flutter clean
-          # إزالة الـ Pods القديمة والمشوهة
-          cd ios
-          pod deintegrate
-          rm -rf Podfile.lock
-          cd ..
           flutter pub get
 
       - name: Setup iOS Project
         script: |
-          # إعادة إنشاء الـ Pods بشكل نظيف
+          # بناء المشروع الأساسي عشان يجهز مجلدات الـ iOS
+          flutter build ios --config-only
+
+          # التحقق من وجود الـ Podfile بذكاء
           cd ios
-          pod install --repo-update
+          if [ -f "Podfile" ]; then
+            echo "Podfile found, installing pods..."
+            pod install --repo-update
+          else
+            echo "No Podfile found, skipping (using Swift Package Manager)."
+          fi
 
       - name: Apply Vault Profiles
         script: xcode-project use-profiles
 
       - name: Build IPA
         script: |
-          # بناء الـ IPA مباشرة باستخدام أمر فلاتر القياسي
           flutter build ipa --release
 
     artifacts:
