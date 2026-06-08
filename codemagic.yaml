@@ -24,24 +24,19 @@ workflows:
 
       - name: Setup iOS Project
         script: |
-          # لاحظ هنا: بنعمل build بدون كود سايننج عشان ميطلعش الخطأ ده
-          flutter build ios --config-only --no-codesign
+          flutter build ios --config-only
           cd ios
           if [ -f "Podfile" ]; then
             pod install --repo-update
           fi
 
-      - name: Build Archive
-        script: |
-          # البناء بدون توقيع - التوقيع هيحصل في الخطوة الجاية
-          flutter build ios --release --no-codesign
+      - name: Apply Vault Profiles
+        script: xcode-project use-profiles
 
-      - name: Apply Vault Profiles and Package IPA
+      - name: Build IPA
         script: |
-          # 1. تعريف المشروع بالبروفايل اللي في الـ Vault
-          xcode-project use-profiles
-          # 2. تحويل الـ Archive لـ IPA وتوقيعه بالشهادات اللي في الـ Vault
-          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner
+          # هنا بنبني مباشرة من غير الأداة اللي بتعمل مشاكل
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
