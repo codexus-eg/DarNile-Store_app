@@ -17,23 +17,17 @@ workflows:
           - DarNile_app_profile
 
     scripts:
-      - name: Get Dependencies
+      - name: Clean and Get Dependencies
         script: |
           flutter clean
           flutter pub get
 
       - name: Setup iOS Project
         script: |
-          # بناء المشروع الأساسي عشان يجهز مجلدات الـ iOS
           flutter build ios --config-only
-
-          # التحقق من وجود الـ Podfile بذكاء
           cd ios
           if [ -f "Podfile" ]; then
-            echo "Podfile found, installing pods..."
             pod install --repo-update
-          else
-            echo "No Podfile found, skipping (using Swift Package Manager)."
           fi
 
       - name: Apply Vault Profiles
@@ -42,9 +36,13 @@ workflows:
       - name: Build IPA
         script: |
           flutter build ipa --release
+          # خطوة إضافية: التأكد من وجود الملف ونسخه لمسار ثابت
+          mkdir -p build/ios/ipa
+          cp -r build/ios/ipa/*.ipa . || echo "IPA not found in expected folder"
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - "*.ipa" # ضفنا دي عشان لو الملف خرج بره المجلد يلقطه
 
     publishing:
       app_store_connect:
