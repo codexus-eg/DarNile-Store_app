@@ -17,31 +17,29 @@ workflows:
           - DarNile_app_profile
 
     scripts:
-      - name: Clean and Get Dependencies
+      - name: Clean Environment
         script: |
           flutter clean
+          # إزالة الـ Pods القديمة والمشوهة
+          cd ios
+          pod deintegrate
+          rm -rf Podfile.lock
+          cd ..
           flutter pub get
 
-      - name: Setup iOS Project and Pods
+      - name: Setup iOS Project
         script: |
-          flutter build ios --config-only
+          # إعادة إنشاء الـ Pods بشكل نظيف
           cd ios
-          if [ ! -f "Podfile" ]; then
-            pod init
-          fi
           pod install --repo-update
 
       - name: Apply Vault Profiles
         script: xcode-project use-profiles
 
-      - name: Build and Package IPA
+      - name: Build IPA
         script: |
-          # 1. بناء الـ Archive (إحنا عارفين إن دي شغالة)
-          flutter build ios --release
-
-          # 2. تحويل الـ Archive إلى IPA باستخدام البروفايل اللي في الخزنة
-          # الأداة دي بتعرف أوتوماتيك مكان الـ Archive وبتربطه بالبروفايل
-          xcode-project build-ipa --project ios/Runner.xcworkspace --scheme Runner
+          # بناء الـ IPA مباشرة باستخدام أمر فلاتر القياسي
+          flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
