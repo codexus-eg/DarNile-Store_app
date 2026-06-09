@@ -297,18 +297,21 @@ class _MainStoreScreenState extends State<MainStoreScreen>
             _syncBottomNavigation(url);
             _triggerInAppReviewIfNeeded(url);
 
-            // حقن كود جافاسكريبت لإخفاء أزرار جوجل و Shop Pay
             _webController.runJavaScript("""
               try {
                 var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = `
-                  .shop-pay-button,
-                  #shop-pay-button,
-                  [data-testid="ShopPay-button"],
-                  [data-testid="Google-button"],
-                  .google-login-button,
-                  .social-login {
+                  /* إخفاء زر التواصل العائم */
+                  #dummy-chat-button-iframe,
+                  iframe[id*="chat"],
+                  iframe[name*="chat"],
+                  .chat-widget,
+                  .floating-chat,
+                  div[class*="chat-button"],
+                  div[class*="contact-button"],
+                  [aria-label*="Contact Us"],
+                  [aria-label*="Contact"] {
                      display: none !important;
                   }
                 `;
