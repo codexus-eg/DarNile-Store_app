@@ -297,26 +297,25 @@ class _MainStoreScreenState extends State<MainStoreScreen>
             _syncBottomNavigation(url);
             _triggerInAppReviewIfNeeded(url);
 
+            // حقن كود جافاسكريبت لإخفاء زر التواصل العائم بشكل مستمر
             _webController.runJavaScript("""
-              try {
-                var style = document.createElement('style');
-                style.type = 'text/css';
-                style.innerHTML = `
-                  /* إخفاء زر التواصل العائم */
-                  #dummy-chat-button-iframe,
-                  iframe[id*="chat"],
-                  iframe[name*="chat"],
-                  .chat-widget,
-                  .floating-chat,
-                  div[class*="chat-button"],
-                  div[class*="contact-button"],
-                  [aria-label*="Contact Us"],
-                  [aria-label*="Contact"] {
-                     display: none !important;
-                  }
-                `;
-                document.head.appendChild(style);
-              } catch(e) {}
+              setInterval(function() {
+                var chatSelectors = [
+                  '#dummy-chat-button-iframe', 'iframe[id*="chat"]', 'iframe[name*="chat"]', 
+                  '.chat-widget', '.floating-chat', 'div[class*="chat-button"]', 
+                  'div[class*="contact-button"]', '[aria-label*="Contact Us"]', '[aria-label*="Contact"]'
+                ];
+                
+                chatSelectors.forEach(function(selector) {
+                  var elements = document.querySelectorAll(selector);
+                  elements.forEach(function(el) {
+                    if (el) {
+                      el.style.display = 'none';
+                      el.style.setProperty('display', 'none', 'important');
+                    }
+                  });
+                });
+              }, 500);
             """);
           },
           onWebResourceError: (WebResourceError error) {
