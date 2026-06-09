@@ -17,14 +17,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    statusBarBrightness: Brightness.dark,
-    systemNavigationBarColor: Color(0xFF0F2A41),
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+      systemNavigationBarColor: Color(0xFF0F2A41),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
 
   try {
     await Firebase.initializeApp();
@@ -66,7 +68,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
 
   @override
@@ -90,7 +93,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     if (savedUrl != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainStoreScreen(baseUrl: savedUrl)),
+        MaterialPageRoute(
+          builder: (context) => MainStoreScreen(baseUrl: savedUrl),
+        ),
       );
     } else {
       Navigator.pushReplacement(
@@ -184,12 +189,23 @@ class LanguageScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: const Color(0xFF0F2A41),
-                  side: const BorderSide(color: Color.fromARGB(255, 206, 189, 1), width: 2),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  side: const BorderSide(
+                    color: Color.fromARGB(255, 206, 189, 1),
+                    width: 2,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   elevation: 5,
                 ),
-                onPressed: () => _saveLanguageAndProceed(context, "https://darnile.myshopify.com/ar"),
-                child: const Text("العربية", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                onPressed: () => _saveLanguageAndProceed(
+                  context,
+                  "https://darnile.myshopify.com/ar",
+                ),
+                child: const Text(
+                  "العربية",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -200,12 +216,23 @@ class LanguageScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: const Color(0xFF0F2A41),
-                  side: const BorderSide(color: Color.fromARGB(255, 206, 189, 1), width: 2),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  side: const BorderSide(
+                    color: Color.fromARGB(255, 206, 189, 1),
+                    width: 2,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   elevation: 2,
                 ),
-                onPressed: () => _saveLanguageAndProceed(context, "https://darnile.myshopify.com"),
-                child: const Text("English", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                onPressed: () => _saveLanguageAndProceed(
+                  context,
+                  "https://darnile.myshopify.com",
+                ),
+                child: const Text(
+                  "English",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],
@@ -223,7 +250,8 @@ class MainStoreScreen extends StatefulWidget {
   State<MainStoreScreen> createState() => _MainStoreScreenState();
 }
 
-class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProviderStateMixin {
+class _MainStoreScreenState extends State<MainStoreScreen>
+    with SingleTickerProviderStateMixin {
   late final WebViewController _webController;
   int _currentIndex = 0;
   bool _isLoading = true;
@@ -244,7 +272,9 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
     )..repeat(reverse: true);
 
     _checkInitialConnectivity();
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) {
       _updateConnectionStatus(results);
     });
 
@@ -266,6 +296,25 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
             });
             _syncBottomNavigation(url);
             _triggerInAppReviewIfNeeded(url);
+
+            // حقن كود جافاسكريبت لإخفاء أزرار جوجل و Shop Pay
+            _webController.runJavaScript("""
+              try {
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = `
+                  .shop-pay-button,
+                  #shop-pay-button,
+                  [data-testid="ShopPay-button"],
+                  [data-testid="Google-button"],
+                  .google-login-button,
+                  .social-login {
+                     display: none !important;
+                  }
+                `;
+                document.head.appendChild(style);
+              } catch(e) {}
+            """);
           },
           onWebResourceError: (WebResourceError error) {
             if (error.description.contains('net::ERR_INTERNET_DISCONNECTED') ||
@@ -278,35 +327,32 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
           onNavigationRequest: (NavigationRequest request) async {
             final String url = request.url;
 
-            if (url.contains("googleusercontent.com/maps") ||
-                url.contains("maps.google.com") ||
-                url.contains("goo.gl/maps") ||
-                url.startsWith("geo:") ||
+            // التعامل فقط مع تطبيقات الموبايل الخارجية (واتساب، خرائط، اتصال)
+            if (url.startsWith("geo:") ||
                 url.startsWith("intent://") ||
+                url.startsWith("whatsapp://") ||
+                url.startsWith("mailto:") ||
+                url.startsWith("tel:") ||
                 url.contains("wa.me") ||
-                url.startsWith("whatsapp://")) {
-              
+                url.contains("googleusercontent.com/maps") ||
+                url.contains("goo.gl/maps")) {
               final Uri nativeUri = Uri.parse(url);
               try {
                 if (await canLaunchUrl(nativeUri)) {
-                  await launchUrl(nativeUri, mode: LaunchMode.externalApplication);
-                  return NavigationDecision.prevent;
+                  await launchUrl(
+                    nativeUri,
+                    mode: LaunchMode.externalApplication,
+                  );
+                  return NavigationDecision
+                      .prevent; // يمنع فتحها جوه التطبيق ويحولها لمتصفح
                 }
               } catch (e) {
                 debugPrint("External app launch error: $e");
               }
-            }
-
-            if (url.contains("darnile.myshopify.com") || url.contains("shopify.com") || url.contains("identity.shopify.com")) {
-              return NavigationDecision.navigate;
-            }
-
-            final Uri externalUri = Uri.parse(url);
-            if (await canLaunchUrl(externalUri)) {
-              await launchUrl(externalUri, mode: LaunchMode.externalApplication);
               return NavigationDecision.prevent;
             }
 
+            // أي رابط تاني (منتجات، بوابات دفع، روابط خارجية عادية) هيفتح جوه التطبيق بدون مشاكل
             return NavigationDecision.navigate;
           },
         ),
@@ -356,6 +402,8 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
+        // إصلاح الخطأ: التأكد من أن الشاشة ما زالت معروضة قبل إظهار الإشعار
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: const Color(0xFF224766),
@@ -370,7 +418,8 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
   }
 
   Future<void> _checkInitialConnectivity() async {
-    final List<ConnectivityResult> results = await Connectivity().checkConnectivity();
+    final List<ConnectivityResult> results = await Connectivity()
+        .checkConnectivity();
     _updateConnectionStatus(results);
   }
 
@@ -394,15 +443,22 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
 
   Future<void> _setupUserAgentAndLoad() async {
     try {
-      String? defaultUA = await _webController.runJavaScriptReturningResult('navigator.userAgent') as String?;
+      String? defaultUA =
+          await _webController.runJavaScriptReturningResult(
+                'navigator.userAgent',
+              )
+              as String?;
       if (defaultUA != null) {
         defaultUA = defaultUA.replaceAll('"', '');
       } else {
-        defaultUA = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
+        defaultUA =
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
       }
       await _webController.setUserAgent("$defaultUA DarNileApp");
     } catch (e) {
-      await _webController.setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) DarNileApp");
+      await _webController.setUserAgent(
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) DarNileApp",
+      );
     }
     _webController.loadRequest(Uri.parse(widget.baseUrl));
   }
@@ -436,11 +492,21 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
 
     String targetUrl = widget.baseUrl;
     switch (index) {
-      case 0: targetUrl = widget.baseUrl; break;
-      case 1: targetUrl = "${widget.baseUrl}/collections/all"; break;
-      case 2: targetUrl = "${widget.baseUrl}/cart"; break;
-      case 3: targetUrl = "${widget.baseUrl}/account"; break;
-      case 4: targetUrl = "${widget.baseUrl}/blogs/locations"; break;
+      case 0:
+        targetUrl = widget.baseUrl;
+        break;
+      case 1:
+        targetUrl = "${widget.baseUrl}/collections/all";
+        break;
+      case 2:
+        targetUrl = "${widget.baseUrl}/cart";
+        break;
+      case 3:
+        targetUrl = "${widget.baseUrl}/account";
+        break;
+      case 4:
+        targetUrl = "${widget.baseUrl}/blogs/locations";
+        break;
     }
     _webController.loadRequest(Uri.parse(targetUrl));
   }
@@ -468,16 +534,25 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
           }
 
           final now = DateTime.now();
-          final isWarning = _lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2);
+          final isWarning =
+              _lastPressedAt == null ||
+              now.difference(_lastPressedAt!) > const Duration(seconds: 2);
 
           if (isWarning) {
             _lastPressedAt = now;
             final bool isArabic = widget.baseUrl.contains('/ar');
-            final message = isArabic ? "اضغط مرة أخرى للخروج من التطبيق" : "Press back again to exit";
+            final message = isArabic
+                ? "اضغط مرة أخرى للخروج من التطبيق"
+                : "Press back again to exit";
 
+            // إصلاح الخطأ: التأكد من أن الشاشة ما زالت معروضة
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(message, style: const TextStyle(color: Colors.white)),
+                content: Text(
+                  message,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 backgroundColor: const Color(0xFF224766),
                 duration: const Duration(seconds: 2),
               ),
@@ -495,10 +570,8 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
                   padding: EdgeInsets.only(top: statusBarHeight),
                   child: WebViewWidget(controller: _webController),
                 ),
-              if (!_isOnline)
-                _buildNoInternetScreen(),
-              if (_isLoading && _isOnline)
-                _buildCustomLoaderScreen(),
+              if (!_isOnline) _buildNoInternetScreen(),
+              if (_isLoading && _isOnline) _buildCustomLoaderScreen(),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
@@ -510,18 +583,48 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
             unselectedItemColor: Colors.white60,
             items: widget.baseUrl.contains('/ar')
                 ? const [
-                    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
-                    BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'المتجر'),
-                    BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'السلة'),
-                    BottomNavigationBarItem(icon: Icon(Icons.person), label: 'حسابي'),
-                    BottomNavigationBarItem(icon: Icon(Icons.location_on), label: 'فروعنا'),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home),
+                      label: 'الرئيسية',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.shop),
+                      label: 'المتجر',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.shopping_cart),
+                      label: 'السلة',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      label: 'حسابي',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.location_on),
+                      label: 'فروعنا',
+                    ),
                   ]
                 : const [
-                    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                    BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Shop'),
-                    BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
-                    BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-                    BottomNavigationBarItem(icon: Icon(Icons.location_on), label: 'Locations'),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home),
+                      label: 'Home',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.shop),
+                      label: 'Shop',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.shopping_cart),
+                      label: 'Cart',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      label: 'Account',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.location_on),
+                      label: 'Locations',
+                    ),
                   ],
           ),
         ),
@@ -569,15 +672,15 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.wifi_off_rounded,
-            size: 90,
-            color: Colors.white70,
-          ),
+          const Icon(Icons.wifi_off_rounded, size: 90, color: Colors.white70),
           const SizedBox(height: 24),
           Text(
             isArabic ? "لا يوجد اتصال بالإنترنت" : "No Internet Connection",
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -596,7 +699,9 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: const Color(0xFF0F2A41),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
               ),
               onPressed: () async {
                 _checkInitialConnectivity();
@@ -604,10 +709,13 @@ class _MainStoreScreenState extends State<MainStoreScreen> with SingleTickerProv
               icon: const Icon(Icons.refresh_rounded),
               label: Text(
                 isArabic ? "إعادة المحاولة" : "Try Again",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
