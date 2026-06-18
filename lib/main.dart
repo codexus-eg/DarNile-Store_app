@@ -297,13 +297,14 @@ class _MainStoreScreenState extends State<MainStoreScreen>
             _syncBottomNavigation(url);
             _triggerInAppReviewIfNeeded(url);
 
-            // حقن كود جافاسكريبت لإخفاء زر Shop للتسجيل، بالإضافة لزر التواصل العائم
+            // حقن كود جافاسكريبت لإخفاء زر Shop للتسجيل، وكلمة "أو"، وزر التواصل العائم
             _webController.runJavaScript("""
-              // 1. إخفاء زر تسجيل الدخول بواسطة Shop أو أي خدمات أخرى باستخدام CSS
+              // 1. إخفاء الزرار عن طريق الـ CSS المباشر باستخدام الـ aria-label
               try {
                 var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = `
+                  button[aria-label="Continue with Shop"],
                   .shop-pay-button,
                   #shop-pay-button,
                   [data-testid="ShopPay-button"],
@@ -316,13 +317,14 @@ class _MainStoreScreenState extends State<MainStoreScreen>
                 document.head.appendChild(style);
               } catch(e) {}
 
-              // 2. فحص مستمر لإخفاء أزرار الشات وزر Shop تحسباً لظهورهم متأخراً
+              // 2. فحص مستمر لإخفاء الأزرار وكلمة (أو / or)
               setInterval(function() {
+                // استهداف الأزرار والشات
                 var selectors = [
+                  'button[aria-label="Continue with Shop"]',
                   '#dummy-chat-button-iframe', 'iframe[id*="chat"]', 'iframe[name*="chat"]', 
                   '.chat-widget', '.floating-chat', 'div[class*="chat-button"]', 
-                  'div[class*="contact-button"]', '[aria-label*="Contact Us"]', '[aria-label*="Contact"]',
-                  '.shop-pay-button', '#shop-pay-button', '[data-testid="ShopPay-button"]', 'shop-login-button'
+                  'div[class*="contact-button"]', '[aria-label*="Contact Us"]', '[aria-label*="Contact"]'
                 ];
                 
                 selectors.forEach(function(selector) {
@@ -333,6 +335,16 @@ class _MainStoreScreenState extends State<MainStoreScreen>
                       el.style.setProperty('display', 'none', 'important');
                     }
                   });
+                });
+
+                // استهداف وإخفاء كلمة "أو" أو "or"
+                var textElements = document.querySelectorAll('span, p, div, h2, h3, h4');
+                textElements.forEach(function(el) {
+                  var text = el.innerText.trim();
+                  if (text === 'أو' || text === 'or' || text === 'Or' || text === 'OR') {
+                    el.style.display = 'none';
+                    el.style.setProperty('display', 'none', 'important');
+                  }
                 });
               }, 500);
             """);
