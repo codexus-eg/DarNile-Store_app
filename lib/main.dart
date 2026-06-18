@@ -297,56 +297,50 @@ class _MainStoreScreenState extends State<MainStoreScreen>
             _syncBottomNavigation(url);
             _triggerInAppReviewIfNeeded(url);
 
-            // حقن كود جافاسكريبت لإخفاء زر Shop للتسجيل، وكلمة "أو"، وزر التواصل العائم
+            // حقن كود جافاسكريبت لحذف زر Shop، وكلمة "أو"، وزر التواصل العائم من جذورهم
             _webController.runJavaScript("""
-              // 1. إخفاء الزرار عن طريق الـ CSS المباشر باستخدام الـ aria-label
+              // 1. استخدام CSS شرس جداً للإخفاء المبدئي
               try {
                 var style = document.createElement('style');
                 style.type = 'text/css';
                 style.innerHTML = `
                   button[aria-label="Continue with Shop"],
+                  [data-testid="login-button"][aria-label*="Shop"],
                   .shop-pay-button,
                   #shop-pay-button,
                   [data-testid="ShopPay-button"],
                   shop-login-button,
-                  .social-login,
-                  .social-logins {
+                  div[data-testid="shop-login-spinner"] {
                      display: none !important;
+                     opacity: 0 !important;
+                     visibility: hidden !important;
+                     position: absolute !important;
+                     z-index: -9999 !important;
+                     height: 0 !important;
                   }
                 `;
                 document.head.appendChild(style);
               } catch(e) {}
 
-              // 2. فحص مستمر لإخفاء الأزرار وكلمة (أو / or)
+              // 2. الحذف النهائي من الكود (DOM) كل 100 مللي ثانية
               setInterval(function() {
-                // استهداف الأزرار والشات
-                var selectors = [
-                  'button[aria-label="Continue with Shop"]',
-                  '#dummy-chat-button-iframe', 'iframe[id*="chat"]', 'iframe[name*="chat"]', 
-                  '.chat-widget', '.floating-chat', 'div[class*="chat-button"]', 
-                  'div[class*="contact-button"]', '[aria-label*="Contact Us"]', '[aria-label*="Contact"]'
-                ];
+                var elementsToRemove = document.querySelectorAll('button[aria-label="Continue with Shop"], [data-testid="login-button"][aria-label*="Shop"], shop-login-button, div[data-testid="shop-login-spinner"], #dummy-chat-button-iframe, iframe[id*="chat"], .chat-widget, .floating-chat');
                 
-                selectors.forEach(function(selector) {
-                  var elements = document.querySelectorAll(selector);
-                  elements.forEach(function(el) {
-                    if (el) {
-                      el.style.display = 'none';
-                      el.style.setProperty('display', 'none', 'important');
-                    }
-                  });
+                elementsToRemove.forEach(function(el) {
+                  if (el) {
+                    el.remove(); // أمر الحذف النهائي
+                  }
                 });
 
-                // استهداف وإخفاء كلمة "أو" أو "or"
+                // حذف كلمة (أو / or)
                 var textElements = document.querySelectorAll('span, p, div, h2, h3, h4');
                 textElements.forEach(function(el) {
                   var text = el.innerText.trim();
                   if (text === 'أو' || text === 'or' || text === 'Or' || text === 'OR') {
-                    el.style.display = 'none';
-                    el.style.setProperty('display', 'none', 'important');
+                    el.remove(); // أمر الحذف النهائي
                   }
                 });
-              }, 500);
+              }, 100);
             """);
           },
           onWebResourceError: (WebResourceError error) {
