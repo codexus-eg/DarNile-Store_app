@@ -297,16 +297,35 @@ class _MainStoreScreenState extends State<MainStoreScreen>
             _syncBottomNavigation(url);
             _triggerInAppReviewIfNeeded(url);
 
-            // حقن كود جافاسكريبت لإخفاء زر التواصل العائم بشكل مستمر
+            // حقن كود جافاسكريبت لإخفاء زر Shop للتسجيل، بالإضافة لزر التواصل العائم
             _webController.runJavaScript("""
+              // 1. إخفاء زر تسجيل الدخول بواسطة Shop أو أي خدمات أخرى باستخدام CSS
+              try {
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = `
+                  .shop-pay-button,
+                  #shop-pay-button,
+                  [data-testid="ShopPay-button"],
+                  shop-login-button,
+                  .social-login,
+                  .social-logins {
+                     display: none !important;
+                  }
+                `;
+                document.head.appendChild(style);
+              } catch(e) {}
+
+              // 2. فحص مستمر لإخفاء أزرار الشات وزر Shop تحسباً لظهورهم متأخراً
               setInterval(function() {
-                var chatSelectors = [
+                var selectors = [
                   '#dummy-chat-button-iframe', 'iframe[id*="chat"]', 'iframe[name*="chat"]', 
                   '.chat-widget', '.floating-chat', 'div[class*="chat-button"]', 
-                  'div[class*="contact-button"]', '[aria-label*="Contact Us"]', '[aria-label*="Contact"]'
+                  'div[class*="contact-button"]', '[aria-label*="Contact Us"]', '[aria-label*="Contact"]',
+                  '.shop-pay-button', '#shop-pay-button', '[data-testid="ShopPay-button"]', 'shop-login-button'
                 ];
                 
-                chatSelectors.forEach(function(selector) {
+                selectors.forEach(function(selector) {
                   var elements = document.querySelectorAll(selector);
                   elements.forEach(function(el) {
                     if (el) {
